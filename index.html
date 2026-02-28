@@ -2,135 +2,142 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ERROR: SYSTEM_OS_VOID</title>
+    <title>SYSTEM_UNSTABLE</title>
     <style>
-        :root {
-            --glitch-color: #00ff41;
-            --bg-color: #050505;
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--glitch-color);
-            font-family: 'Courier New', Courier, monospace;
-            overflow-x: hidden;
-            cursor: crosshair;
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            overflow: hidden; /* No escape */
+            height: 100vh;
+            user-select: none;
         }
 
-        /* The CRT scanline effect */
-        body::before {
-            content: " ";
-            display: block;
+        #canvas-bg {
             position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 10;
-            background-size: 100% 4px, 3px 100%;
-            pointer-events: none;
+            top: 0; left: 0;
+            z-index: -1;
+            opacity: 0.3;
         }
 
-        header {
+        .glitch-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
             text-align: center;
-            padding: 50px;
-            animation: shake 0.5s infinite;
+            width: 80%;
         }
 
-        .repo-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            perspective: 1000px;
+        .weird-text {
+            font-size: 3rem;
+            text-shadow: 2px 2px #f0f, -2px -2px #0ff;
+            cursor: help;
         }
 
-        .card {
-            border: 1px solid var(--glitch-color);
-            padding: 20px;
-            width: 250px;
-            background: black;
-            transition: all 0.1s;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-        }
-
-        .card:hover {
-            background: var(--glitch-color);
-            color: black;
-            transform: scale(1.1) rotateX(10deg) rotateY(-10deg);
-            box-shadow: 10px 10px 0px #ff00ff;
-        }
-
-        button {
-            background: transparent;
-            color: red;
-            border: 1px solid red;
+        .floating-repo {
+            position: absolute;
             padding: 10px;
-            margin-top: 50px;
-            cursor: pointer;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
+            border: 1px solid #0f0;
+            background: rgba(0, 20, 0, 0.9);
+            box-shadow: 5px 5px 0px #f0f;
+            pointer-events: all;
+            transition: 0.1s;
         }
 
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-
-        .glitch-text {
+        #status-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #0f0;
+            color: #000;
+            padding: 5px;
             font-weight: bold;
-            text-shadow: 2px 0 red, -2px 0 blue;
+            font-size: 12px;
+        }
+
+        .cursor-stalker {
+            position: fixed;
+            pointer-events: none;
+            color: yellow;
+            font-size: 10px;
+            white-space: nowrap;
         }
     </style>
 </head>
 <body>
 
-<header>
-    <h1 class="glitch-text">REPOS_THAT_SHOULD_NOT_BE.EXE</h1>
-    <p>DO NOT DOWNLOAD. DO NOT EXECUTE. DO NOT BREATHE.</p>
-</header>
+<canvas id="canvas-bg"></canvas>
 
-<div class="repo-container">
-    <div class="card">
-        <h3>[SUICIDE LINUX]</h3>
-        <p>One typo and your OS is deleted forever.</p>
-        <a href="https://github.com/Tiiffi/suicide-linux" style="color:inherit;">[ENTER_ABYSS]</a>
-    </div>
-
-    <div class="card">
-        <h3>[ARNOLDC]</h3>
-        <p>IT'S SHOWTIME. YOU HAVE BEEN TERMINATED.</p>
-        <a href="https://github.com/lhartikk/ArnoldC" style="color:inherit;">[GET_TO_THE_CHOPPA]</a>
-    </div>
-
-    <div class="card">
-        <h3>[CHICKEN]</h3>
-        <p>Chicken chicken chicken. Chicken chicken.</p>
-        <a href="https://github.com/torhve/chicken" style="color:inherit;">[CLUCK_CLUCK]</a>
-    </div>
+<div class="glitch-container">
+    <h1 class="weird-text" onmouseover="scramble(this)">GITHUB_VOID_0.1.1</h1>
+    <p id="manifesto">Move your mouse to feed the algorithm.</p>
+    <button onclick="loseGravity()" style="background:black; color:red; border:1px solid red; padding:10px; cursor:pointer;">DO NOT CLICK: ACTIVATE_ENTROPY</button>
 </div>
 
-<button onclick="corrupt()">CORRUPT DATABASE</button>
+<div id="status-bar">MEMORY_LEAK: <span id="leak-val">0</span>kb | STATUS: WATCHING_YOU</div>
 
 <script>
-    function corrupt() {
-        document.body.style.filter = "invert(1) hue-rotate(90deg) contrast(200%)";
-        alert("CRITICAL_FAILURE: DATA_LEAK_IN_PROGRESS");
-        setTimeout(() => {
-            document.body.style.filter = "none";
-        }, 500);
+    // 1. The Stalker: Text that follows the mouse
+    const stalker = document.createElement('div');
+    stalker.className = 'cursor-stalker';
+    document.body.appendChild(stalker);
+    document.addEventListener('mousemove', (e) => {
+        stalker.style.left = e.clientX + 15 + 'px';
+        stalker.style.top = e.clientY + 15 + 'px';
+        stalker.innerText = `X:${e.clientX} Y:${e.clientY} | REPO_UID: ${Math.random().toString(16).slice(2,8)}`;
+    });
+
+    // 2. The Semantic Collapse: Randomly change text to "Chicken"
+    function scramble(element) {
+        const original = element.innerText;
+        element.innerText = "CHICKEN CHICKEN CHICKEN";
+        setTimeout(() => { element.innerText = original; }, 1000);
     }
-    
-    // Randomly move the cards slightly to make it feel "unstable"
-    setInterval(() => {
-        const cards = document.querySelectorAll('.card');
-        cards.forEach(card => {
-            card.style.marginLeft = Math.random() * 5 + "px";
+
+    // 3. Gravity Leak: Make everything fall apart
+    function loseGravity() {
+        const items = document.querySelectorAll('.weird-text, button, p');
+        items.forEach(item => {
+            item.style.position = 'absolute';
+            item.style.transition = 'top 2s ease-in, transform 2s';
+            item.style.top = '120vh';
+            item.style.transform = `rotate(${Math.random() * 360}deg)`;
         });
-    }, 100);
+        document.body.style.backgroundColor = "white";
+        setTimeout(() => { location.reload(); }, 2500);
+    }
+
+    // 4. Memory Leak Counter
+    let leak = 0;
+    setInterval(() => {
+        leak += Math.floor(Math.random() * 100);
+        document.getElementById('leak-val').innerText = leak;
+        if(leak > 5000) { document.body.style.filter = `invert(${Math.random()})`; }
+    }, 500);
+
+    // 5. Background Matrix Rain (but it's just '0' and '6' for the Satan language)
+    const canvas = document.getElementById('canvas-bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const chars = "06"; 
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#0f0";
+        ctx.font = fontSize + "px monospace";
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(draw, 33);
 </script>
 
 </body>
